@@ -143,5 +143,8 @@ async function refresh() {
 
 $("refresh").addEventListener("click", refresh);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+// A new link opened in a tab that already shows this page changes only the
+// fragment, which reloads nothing: read it again.
+window.addEventListener("hashchange", refresh);
 refresh();
 setInterval(refresh, 60000);
