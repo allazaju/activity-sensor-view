@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Remote view (ADR-0023, contract/snapshot.md): decrypts in this browser
+     the snapshot the phone at home writes. The key is in the link after the
+     '#', which the browser never sends anywhere. Nothing is loaded from any
+     other host; the only request goes to GitHub's gist host for ciphertext. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://gist.githubusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sensor">
+<meta name="color-scheme" content="light dark">
+<title>Activity Sensor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="app">
+  <header>
+    <h1>Activity Sensor</h1>
+    <p id="age" class="dim">Reading…</p>
+  </header>
+  <p id="note" class="note" hidden></p>
+  <section id="places"></section>
+  <footer>
+    <button id="refresh" type="button">Refresh</button>
+    <p class="dim small">Decrypted on this phone. The key is in this page's link only.</p>
+  </footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
