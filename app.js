@@ -59,6 +59,21 @@ function el(tag, cls, text) {
   return e;
 }
 
+// A padlock, shut or open, drawn here: the page loads nothing from elsewhere.
+function lockIcon(locked) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("class", "lock" + (locked ? "" : " open"));
+  svg.setAttribute("aria-label", locked ? "locked" : "unlocked");
+  const body = document.createElementNS(ns, "rect");
+  for (const [k, v] of [["x", "5"], ["y", "11"], ["width", "14"], ["height", "10"], ["rx", "2.5"]]) body.setAttribute(k, v);
+  const shackle = document.createElementNS(ns, "path");
+  shackle.setAttribute("d", locked ? "M8 11V8a4 4 0 0 1 8 0v3" : "M8 11V8a4 4 0 0 1 7.5-2");
+  svg.append(body, shackle);
+  return svg;
+}
+
 function drawPlace(p, now) {
   const card = el("article", "card");
   const head = el("div", "place-head");
@@ -67,19 +82,23 @@ function drawPlace(p, now) {
   card.append(head);
 
   if (p.state) {
+    // One reading, as the app's icon (0.37.0): open; closed; or closed and,
+    // where the lock is taught, locked or unlocked -- the thing to notice.
+    const locked = !p.state.open && p.lock ? p.lock.locked : null;
+    const safe = !p.state.open && locked !== false;
     const s = el("div", "state");
-    s.append(el("span", "dot" + (p.state.open ? " open" : "")));
-    s.append(el("strong", null, p.state.open ? "Open" : "Closed"));
-    s.append(el("span", "dim", "since " + fmtWhen(p.state.since, now)));
+    s.append(el("span", "dot" + (safe ? "" : " open")));
+    s.append(el("strong", null, p.state.open ? "Open" : locked === true ? "Closed · locked" : locked === false ? "Closed · unlocked" : "Closed"));
+    if (locked !== null) s.append(lockIcon(locked));
     card.append(s);
+    card.append(el("p", "dim", locked !== null && p.lock.since
+      ? "probably, since " + fmtWhen(p.lock.since, now)
+      : "since " + fmtWhen(p.state.since, now)));
   } else if (p.last_moved) {
     card.append(el("p", "dim", "Last moved " + fmtWhen(p.last_moved, now)));
   }
 
   const chips = el("div", "row");
-  if (p.lock && p.lock.locked !== null) {
-    chips.append(el("span", "chip lock", (p.lock.locked ? "Probably locked" : "Probably unlocked") + (p.lock.since ? " · " + fmtWhen(p.lock.since, now) : "")));
-  }
   chips.append(el("span", "chip", p.today.events + " today"));
   if (p.today.tried > 0) chips.append(el("span", "chip tried", p.today.tried + " tried the door"));
   card.append(chips);
